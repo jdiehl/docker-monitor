@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  docker-monitor:
+    container_name: docker-monitor
+    image: docker-monitor
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: Europe/Berlin
+      SLACK_TOKEN: xoxb-944652474208-946528474759-3kLHHIupIQX1W9HlQRGeJb5U
+      # SOCKET_PATH: /var/run/docker.sock
+      # SLACK_CHANNEL: "#docker"
+
+  monitored-process:
+    container_name: test
+    image: test
+    labels:
+    - monitor.enable=true
+    - monitor.errors=true
