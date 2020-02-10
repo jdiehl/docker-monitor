@@ -1,14 +1,13 @@
 const { EventEmitter } = require('events')
-const { Docker } = require('node-docker-api')
 
 function isTrue(labels, key) {
   return labels[key] && labels[key].toLowerCase() === 'true'
 }
 
 class Monitor extends EventEmitter {
-  constructor({ socketPath }) {
+  constructor({ docker }) {
     super()
-    this.docker = new Docker({ socketPath })
+    this.docker = docker
     this.ids = {}
   }
 

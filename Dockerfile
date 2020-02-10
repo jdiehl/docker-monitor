@@ -12,5 +12,8 @@ RUN yarn --frozen-lockfile --prod
 ADD index.js ./
 ADD src ./src
 
+EXPOSE 3000
+
 ENV SOCKET_PATH=/var/run/docker.sock
 ENV SLACK_CHANNEL=#docker
+ENV PORT=3000
