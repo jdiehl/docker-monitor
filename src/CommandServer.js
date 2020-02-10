@@ -14,7 +14,6 @@ class CommandServer {
       req.on('data', chunk =>  chunks.push(chunk))
       req.on('end', async () => {
         const body = Buffer.concat(chunks).toString();
-        console.log('BODY:', body)
         try {
           const params = parse(body)
           await this.handle(params.text)
@@ -31,8 +30,9 @@ class CommandServer {
   async handle(message) {
     const [command, target] = message.split(/\s+/)
     const container = await this.docker.container.get(target)
-    if (!container) console.error('Invalid container')
-    await container[command]()
+    if (!container) throw new Error('Invalid container')
+    if (typeof container[command] !== 'function') throw new Error('Invalid command')
+    container[command]()
   }
 
 }
