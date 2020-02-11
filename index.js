@@ -3,9 +3,10 @@ const { Monitor } = require('./src/Monitor')
 const { Notifier } = require('./src/Notifier')
 const { CommandServer } = require('./src/CommandServer')
 
-const { SOCKET_PATH, SLACK_TOKEN, SLACK_CHANNEL } = process.env
+const { SOCKET_PATH, SLACK_TOKEN, SLACK_CHANNEL, SLACK_SIGNING_SECRET } = process.env
 const PORT = parseInt(process.env.PORT, 10)
 if (!SLACK_TOKEN) throw new Error('Missing SLACK_TOKEN')
+if (!SLACK_SIGNING_SECRET) throw new Error('Missing SLACK_SIGNING_SECRET')
 
 async function main() {
   const docker = new Docker({
@@ -20,6 +21,7 @@ async function main() {
   })
 
   const server = new CommandServer({
+    signing_secret: SLACK_SIGNING_SECRET,
     port: PORT || 3000,
     docker
   })

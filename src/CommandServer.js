@@ -1,11 +1,13 @@
 const { createServer } = require('http')
+const { createHmac } = require('crypto')
 const { parse } = require('querystring')
 
 class CommandServer {
 
-  constructor({ docker, port }) {
+  constructor({ docker, port, signing_secret }) {
     this.docker = docker
     this.port = port
+    this.signing_secret = signing_secret
   }
 
   start() {
@@ -13,7 +15,12 @@ class CommandServer {
       const chunks = []
       req.on('data', chunk =>  chunks.push(chunk))
       req.on('end', async () => {
-        const body = Buffer.concat(chunks).toString();
+        const body = Buffer.concat(chunks).toString()
+        if (!this.verify(req, body)) {
+          res.writeHead(401, 'Forbidden')
+          res.end()
+          return
+        }
         try {
           const params = parse(body)
           await this.handle(params.text)
@@ -33,6 +40,30 @@ class CommandServer {
     if (!container) throw new Error('Invalid container')
     if (typeof container[command] !== 'function') throw new Error('Invalid command')
     container[command]()
+  }
+
+  // See: https://api.slack.com/docs/verifying-requests-from-slack
+  verify(req, body) {
+    
+    // get their hash    
+    const theirs = req.headers['X-Slack-Signature']
+    if (!theirs) return false
+
+    // ensure that the request is recent
+    const timestamp = req.headers['X-Slack-Request-Timestamp']
+    if (!timestamp) return false
+    if (new Date().getTime() - parseInt(timestamp, 10) > 300) return false
+
+    // construct our the hash
+    const content = `v0:${timestamp}:${body}`
+    const mine = createHmac('sha256', signing_secret).update(content).digest('base64')
+
+    console.log('X-Slack-Request-Timestamp:', timestamp)
+    console.log('content:', content)
+    console.log('mine:', mine)
+    console.log('theirs:', theirs)
+
+    return mine === theirs
   }
 
 }
