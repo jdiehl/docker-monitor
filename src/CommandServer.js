@@ -46,17 +46,17 @@ class CommandServer {
   verify(req, body) {
     
     // get their hash    
-    const theirs = req.headers['X-Slack-Signature']
+    const theirs = req.headers['x-slack-signature']
     if (!theirs) return false
 
     // ensure that the request is recent
-    const timestamp = req.headers['X-Slack-Request-Timestamp']
+    const timestamp = req.headers['x-slack-request-timestamp']
     if (!timestamp) return false
-    if (new Date().getTime() - parseInt(timestamp, 10) > 300) return false
+    if (Math.floor(new Date().getTime() / 1000) - parseInt(timestamp, 10) > 300) return false
 
     // construct our the hash
     const content = `v0:${timestamp}:${body}`
-    const mine = createHmac('sha256', signing_secret).update(content).digest('base64')
+    const mine = 'v0=' + createHmac('sha256', this.signing_secret).update(content).digest('hex')
 
     console.log('X-Slack-Request-Timestamp:', timestamp)
     console.log('content:', content)
