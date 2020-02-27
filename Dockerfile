@@ -1,8 +1,9 @@
 FROM node:alpine
+RUN apk update && apk upgrade
 
 WORKDIR /home/node
-
 ENTRYPOINT node index
+EXPOSE 80
 
 # Install packages
 ADD package.json yarn.lock ./
@@ -12,8 +13,6 @@ RUN yarn --frozen-lockfile --prod
 ADD index.js ./
 ADD src ./src
 
-EXPOSE 3000
-
 ENV SOCKET_PATH=/var/run/docker.sock
 ENV SLACK_CHANNEL=#docker
-ENV PORT=3000
+ENV PORT=80

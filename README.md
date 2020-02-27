@@ -1,15 +1,44 @@
 # Docker Monitor
 
-This node script monitors your docker host and sends a slack notification whenever a monitored process dies or reports an error to stderr
+Monitors your docker containers and send a slack notification whenever a monitored process dies or reports an error to stderr.
 
-## Installation
+## Usage with Docker Compose
 
-1. Build the docker image
-2. Create a Slack App and generate a token (allow chat:post and invite the app into #docker)
-3. Configure your SLACK_TOKEN as env in docker-compose.yml
-4. Configure all docker images to be monitored with the labels `monitor.enable=true` and optionally `monitor.errors=true`
-5. Deploy the image using docker-compose
+Add the docker-monitor service:
+
+```yml
+  docker-monitor:
+    container_name: docker-monitor
+    image: jdiehl/docker-monitor
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: Europe/Berlin
+      SLACK_TOKEN: xoxb-944652474208-946528474759-3kLHHIupIQX1W9HlQRGeJb5U
+      SLACK_SIGNING_SECRET: xxx
+      # SOCKET_PATH: /var/run/docker.sock
+      # SLACK_CHANNEL: "#docker"
+```
+
+Enable monitoring for another container using labels:
+
+```yml
+  monitored-process:
+    container_name: test
+    image: test
+    labels:
+    - monitor.enable=true
+    - monitor.errors=true
+```
 
 ## Optional Slash Commands
 
-You can configure the endpoint of a slash command to the container. It will then execute that command as a docker command.
+To enable slash commands, configure a proxy (nginx / haproxy / traefik) to map the endpoint from Slack to port 80 of the container.
+
+## Building
+
+```sh
+docker build -t jdiehl/docker-monitor .
+docker push jdiehl/docker-monitor
+```
