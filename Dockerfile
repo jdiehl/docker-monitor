@@ -2,6 +2,7 @@ FROM node:alpine
 RUN apk update && apk upgrade
 
 WORKDIR /home/node
+HEALTHCHECK CMD wget localhost:8080 -q -O -
 ENTRYPOINT node index
 EXPOSE 80
 

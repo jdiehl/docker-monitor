@@ -42,3 +42,7 @@ To enable slash commands, configure a proxy (nginx / haproxy / traefik) to map t
 docker build -t jdiehl/docker-monitor .
 docker push jdiehl/docker-monitor
 ```
+
+## Health Check
+
+The server reponds to all requests on port 8080 with "200 - OK" for health checks.
