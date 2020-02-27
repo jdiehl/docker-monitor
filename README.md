@@ -15,7 +15,7 @@ Add the docker-monitor service:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       TZ: Europe/Berlin
-      SLACK_TOKEN: xoxb-944652474208-946528474759-3kLHHIupIQX1W9HlQRGeJb5U
+      SLACK_TOKEN: xoxb-xxx
       SLACK_SIGNING_SECRET: xxx
       # SOCKET_PATH: /var/run/docker.sock
       # SLACK_CHANNEL: "#docker"
